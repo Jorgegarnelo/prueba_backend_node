@@ -1,0 +1,5 @@
+# Dependencias
+node_modules/
+
+# Seguridad y variables de entorno
+.env
