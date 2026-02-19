@@ -1,13 +1,17 @@
 const express = require('express');
 const app = express();
-
-// Importamos las rutas organizadas
 const testRoutes = require('./routes/test.routes'); 
+const tareaRoutes = require('./routes/tarea.routes');
+const usuarioRoutes = require('./routes/usuario.routes');
 
-// Middleware para parsear JSON
+
 app.use(express.json());    
 
-// Usamos las rutas organizadas
+
 app.use('/api', testRoutes);
 
-module.exports = app;   
+app.use('/api/tareas', tareaRoutes);
+
+app.use('/api/usuarios', usuarioRoutes);
+
+module.exports = app;
