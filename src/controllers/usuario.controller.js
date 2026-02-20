@@ -3,8 +3,10 @@ const Usuario = require('../models/Usuario.model');
 
 exports.register = async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        
+        const { username, email, password, role } = req.body; 
         const nuevoUsuario = await Usuario.create({
+            username, 
             email,
             password,
             role: role || 'user'
