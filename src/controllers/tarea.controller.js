@@ -1,4 +1,5 @@
 const Tarea = require('../models/tarea.model');
+const Usuario = require('../models/Usuario.model');
 
 exports.crearTarea = async (req, res) => {
     try {
@@ -19,14 +20,27 @@ exports.obtenerTareas = async (req, res) => {
     try {
         const role = req.headers['x-user-role'];
         const userId = req.headers['x-user-id'];
-        if (role === 'admin') {
-            const tareas = await Tarea.findAll();
-            return res.json(tareas);
+
+        
+        const includeUsuario = {
+            model: Usuario,
+            as: 'creador',
+            attributes: ['username', 'email']
+        };
+
+        let queryOptions = {
+            include: [includeUsuario]
+        };
+
+        if (role !== 'admin') {
+            queryOptions.where = { usuario_id: userId };
         }
-        const tareas = await Tarea.findAll({ where: { usuario_id: userId } });
+
+        const tareas = await Tarea.findAll(queryOptions);
         return res.json(tareas);
     } catch (error) {
-        return res.status(500).json({ error: 'Error' });
+        console.error('Error en obtenerTareas:', error);
+        return res.status(500).json({ error: 'Error al obtener tareas' });
     }
 };
 
@@ -38,7 +52,6 @@ exports.actualizarTarea = async (req, res) => {
         const tarea = await Tarea.findByPk(id);
 
         if (!tarea) return res.status(404).json({ error: 'No existe' });
-
 
         if (role !== 'admin' && tarea.usuario_id != userId) {
             return res.status(403).json({ error: 'No tienes permiso para editar esto' });
@@ -60,7 +73,6 @@ exports.eliminarTarea = async (req, res) => {
 
         if (!tarea) return res.status(404).json({ error: 'No existe' });
 
-
         if (role !== 'admin' && tarea.usuario_id != userId) {
             return res.status(403).json({ error: 'No tienes permiso para borrar esto' });
         }
@@ -71,5 +83,3 @@ exports.eliminarTarea = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar' });
     }
 };
-
-
