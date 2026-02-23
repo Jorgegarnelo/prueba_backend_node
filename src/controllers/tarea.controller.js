@@ -3,7 +3,8 @@ const Usuario = require('../models/Usuario.model');
 
 exports.crearTarea = async (req, res) => {
     try {
-        const { titulo, descripcion, usuario_id } = req.body;
+        const { titulo, descripcion } = req.body;
+        const usuario_id = req.user.id; 
         const nuevaTarea = await Tarea.create({
             titulo,
             descripcion,
@@ -18,10 +19,9 @@ exports.crearTarea = async (req, res) => {
 
 exports.obtenerTareas = async (req, res) => {
     try {
-        const role = req.headers['x-user-role'];
-        const userId = req.headers['x-user-id'];
+        const role = req.user.role;
+        const userId = req.user.id;
 
-        
         const includeUsuario = {
             model: Usuario,
             as: 'creador',
@@ -47,8 +47,8 @@ exports.obtenerTareas = async (req, res) => {
 exports.actualizarTarea = async (req, res) => {
     try {
         const { id } = req.params;
-        const role = req.headers['x-user-role'];
-        const userId = req.headers['x-user-id'];
+        const role = req.user.role;
+        const userId = req.user.id;
         const tarea = await Tarea.findByPk(id);
 
         if (!tarea) return res.status(404).json({ error: 'No existe' });
@@ -67,8 +67,8 @@ exports.actualizarTarea = async (req, res) => {
 exports.eliminarTarea = async (req, res) => {
     try {
         const { id } = req.params;
-        const role = req.headers['x-user-role'];
-        const userId = req.headers['x-user-id'];
+        const role = req.user.role;
+        const userId = req.user.id;
         const tarea = await Tarea.findByPk(id);
 
         if (!tarea) return res.status(404).json({ error: 'No existe' });

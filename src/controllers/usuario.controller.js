@@ -1,12 +1,13 @@
 const Usuario = require('../models/Usuario.model');
+const jwt = require('jsonwebtoken');
 
 
 exports.register = async (req, res) => {
     try {
-        
-        const { username, email, password, role } = req.body; 
+
+        const { username, email, password, role } = req.body;
         const nuevoUsuario = await Usuario.create({
-            username, 
+            username,
             email,
             password,
             role: role || 'user'
@@ -28,8 +29,15 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: 'Credenciales incorrectas' });
         }
 
+
+        const token = jwt.sign(
+            { id: usuario.id, role: usuario.role },
+            'mi_clave_secreta_gijon_2026',
+            { expiresIn: '24h' }
+        );
+
         res.json({
-            token: 'fake-jwt-token',
+            token: token,
             user: {
                 id: usuario.id,
                 email: usuario.email,
