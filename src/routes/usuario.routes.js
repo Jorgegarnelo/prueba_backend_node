@@ -1,14 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario.model');
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await Usuario.findOne({ where: { email, password } });
+        
         if (user) {
+            const token = jwt.sign(
+                { id: user.id, role: user.role }, 
+                'mi_clave_secreta_gijon_2026', 
+                { expiresIn: '24h' }
+            );
+
             res.json({ 
                 success: true, 
+                token: token,
                 user: {
                     id: user.id,
                     email: user.email,
@@ -35,33 +44,10 @@ router.post('/register', async (req, res) => {
         });
         res.status(201).json({
             success: true,
-            user: nuevoUsuario
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-module.exports = router;
-
-
-router.post('/register', async (req, res) => {
-    const { email, password, role } = req.body;
-    try {
-        
-        const nuevoUsuario = await Usuario.create({ 
-            email, 
-            password, 
-            role: role || 'user' 
-        });
-        
-        res.status(201).json({
-            success: true,
             message: 'Usuario creado correctamente',
             user: nuevoUsuario
         });
     } catch (error) {
-        console.error('Error en registro:', error);
         res.status(500).json({ error: 'El email ya existe o hay un fallo en la DB' });
     }
 });
